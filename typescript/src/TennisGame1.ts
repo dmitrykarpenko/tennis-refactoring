@@ -6,6 +6,15 @@ export class TennisGame1 implements TennisGame {
   private player1Name: string;
   private player2Name: string;
 
+  private MAX_POINTS_COUNT:number = 4;
+
+  private scoreMap: Record<number, string> = {
+    0: 'Love',
+    1: 'Fifteen',
+    2: 'Thirty',
+    3: 'Forty',
+  };
+
   constructor(player1Name: string, player2Name: string) {
     this.player1Name = player1Name;
     this.player2Name = player2Name;
@@ -18,52 +27,29 @@ export class TennisGame1 implements TennisGame {
       this.m_score2 += 1;
   }
 
+  // treating it as "public" method
   getScore(): string {
     let score: string = '';
-    let tempScore: number = 0;
-    if (this.m_score1 === this.m_score2) {
-      switch (this.m_score1) {
-        case 0:
-          score = 'Love-All';
-          break;
-        case 1:
-          score = 'Fifteen-All';
-          break;
-        case 2:
-          score = 'Thirty-All';
-          break;
-        default:
-          score = 'Deuce';
-          break;
-
+    if (this.m_score1 === this.m_score2) { // equal score - '...-All' output or 'Deuce', game continues
+      const first: string = this.scoreMap[this.m_score1];
+      // can be ternary
+      if (!first || first === 'Forty') {
+        score = 'Deuce';
+      }
+      else {
+        score = `${first}-All`;
       }
     }
-    else if (this.m_score1 >= 4 || this.m_score2 >= 4) {
+    else if (this.m_score1 >= this.MAX_POINTS_COUNT
+      || this.m_score2 >= this.MAX_POINTS_COUNT) { // someone is winning
       const minusResult: number = this.m_score1 - this.m_score2;
       if (minusResult === 1) score = 'Advantage player1';
       else if (minusResult === -1) score = 'Advantage player2';
       else if (minusResult >= 2) score = 'Win for player1';
       else score = 'Win for player2';
     }
-    else {
-      for (let i = 1; i < 3; i++) {
-        if (i === 1) tempScore = this.m_score1;
-        else { score += '-'; tempScore = this.m_score2; }
-        switch (tempScore) {
-          case 0:
-            score += 'Love';
-            break;
-          case 1:
-            score += 'Fifteen';
-            break;
-          case 2:
-            score += 'Thirty';
-            break;
-          case 3:
-            score += 'Forty';
-            break;
-        }
-      }
+    else { // not equal score, game continues
+      score = `${this.scoreMap[this.m_score1]}-${this.scoreMap[this.m_score2]}`;
     }
     return score;
   }
